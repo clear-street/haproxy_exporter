@@ -1,0 +1,127 @@
+package main
+
+/* Stats fields for CSV output. For any field added here please add the text
+   representation in the stat_fields array. Please only append at the end
+   before the ST_F_TOTAL_FIELDS entry and never insert anything in the middle
+   nor at the beginning.
+   Reference https://github.com/haproxy/haproxy/blob/master/addons/promex/service-prometheus.c
+   https://github.com/haproxy/haproxy/blob/6fd2576d5ebbe90039cc918d01d0f62970f7cd67/include/haproxy/stats-t.h#L357
+*/
+
+const (
+	PXNAME int = iota
+	SVNAME
+	QCUR
+	QMAX
+	SCUR
+	SMAX
+	SLIM
+	STOT
+	BIN
+	BOUT
+	DREQ
+	DRESP
+	EREQ
+	ECON
+	ERESP
+	WRETR
+	WREDIS
+	STATUS
+	WEIGHT
+	ACT
+	BCK
+	CHKFAIL
+	CHKDOWN
+	LASTCHG
+	DOWNTIME
+	QLIMIT
+	PID
+	IID
+	SID
+	THROTTLE
+	LBTOT
+	TRACKED
+	TYPE
+	RATE
+	RATE_LIM
+	RATE_MAX
+	CHECK_STATUS
+	CHECK_CODE
+	CHECK_DURATION
+	HRSP_1XX
+	HRSP_2XX
+	HRSP_3XX
+	HRSP_4XX
+	HRSP_5XX
+	HRSP_OTHER
+	HANAFAIL
+	REQ_RATE
+	REQ_RATE_MAX
+	REQ_TOT
+	CLI_ABRT
+	SRV_ABRT
+	COMP_IN
+	COMP_OUT
+	COMP_BYP
+	COMP_RSP
+	LASTSESS
+	LAST_CHK
+	LAST_AGT
+	QTIME
+	CTIME
+	RTIME
+	TTIME
+	AGENT_STATUS
+	AGENT_CODE
+	AGENT_DURATION
+	CHECK_DESC
+	AGENT_DESC
+	CHECK_RISE
+	CHECK_FALL
+	CHECK_HEALTH
+	AGENT_RISE
+	AGENT_FALL
+	AGENT_HEALTH
+	ADDR
+	COOKIE
+	MODE
+	ALGO
+	CONN_RATE
+	CONN_RATE_MAX
+	CONN_TOT
+	INTERCEPTED
+	DCON
+	DSES
+	WREW
+	CONNECT
+	REUSE
+	CACHE_LOOKUPS
+	CACHE_HITS
+	SRV_ICUR
+	SRV_ILIM
+	QT_MAX
+	CT_MAX
+	RT_MAX
+	TT_MAX
+	EINT
+	IDLE_CONN_CUR
+	SAFE_CONN_CUR
+	USED_CONN_CUR
+	NEED_CONN_EST
+	UWEIGHT
+	AGG_SRV_STATUS
+	AGG_SRV_CHECK_STATUS
+	AGG_CHECK_STATUS
+	SRID
+	SESS_OTHER
+	H1SESS
+	H2SESS
+	H3SESS
+	REQ_OTHER
+	H1REQ
+	H2REQ
+	H3REQ
+
+	/* must always be the last one */
+	TOTAL_FIELDS
+)
