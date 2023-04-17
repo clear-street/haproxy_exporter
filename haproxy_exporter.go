@@ -251,9 +251,9 @@ var (
 type Exporter struct {
 	URI       string
 	mutex     sync.RWMutex
-	fetchInfo func(int) (io.ReadCloser, error)
+	fetchInfo func() (io.ReadCloser, error)
 	fetchStat func(int) (io.ReadCloser, error)
-	fetchProc func(int) (io.ReadCloser, error)
+	fetchProc func() (io.ReadCloser, error)
 
 	up                             prometheus.Gauge
 	totalScrapes, csvParseFailures prometheus.Counter
@@ -269,18 +269,18 @@ func NewExporter(uri string, sslVerify, proxyFromEnv bool, selectedServerMetrics
 		return nil, err
 	}
 
-	var fetchInfo func(int) (io.ReadCloser, error)
+	var fetchInfo func() (io.ReadCloser, error)
 	var fetchStat func(int) (io.ReadCloser, error)
-	var fetchProc func(int) (io.ReadCloser, error)
+	var fetchProc func() (io.ReadCloser, error)
 	switch u.Scheme {
 	case "http", "https", "file":
 		fetchStat = fetchHTTP(uri, sslVerify, proxyFromEnv, timeout)
 	case "unix":
 		fetchInfo = fetchUnix("unix", u.Path, showInfoCmd, timeout)
-		fetchStat = fetchUnix("unix", u.Path, showStatCmd, timeout)
+		fetchStat = fetchUnixProc("unix", u.Path, showStatCmd, timeout)
 	case "tcp":
 		fetchInfo = fetchUnix("tcp", u.Host, showInfoCmd, timeout)
-		fetchStat = fetchUnix("tcp", u.Host, showStatCmd, timeout)
+		fetchStat = fetchUnixProc("tcp", u.Host, showStatCmd, timeout)
 		fetchProc = fetchUnix("tcp", u.Host, showProcCmd, timeout)
 	default:
 		return nil, fmt.Errorf("unsupported scheme: %q", u.Scheme)
@@ -372,7 +372,13 @@ func fetchHTTP(uri string, sslVerify, proxyFromEnv bool, timeout time.Duration) 
 	}
 }
 
-func fetchUnix(scheme, address, cmd string, timeout time.Duration) func(int) (io.ReadCloser, error) {
+func fetchUnix(scheme, address, cmd string, timeout time.Duration) func() (io.ReadCloser, error) {
+	return func() (io.ReadCloser, error) {
+		return fetchUnixProc(scheme, address, cmd, timeout)(-1)
+	}
+}
+
+func fetchUnixProc(scheme, address, cmd string, timeout time.Duration) func(int) (io.ReadCloser, error) {
 	return func(proc int) (io.ReadCloser, error) {
 		f, err := net.DialTimeout(scheme, address, timeout)
 		if err != nil {
@@ -410,7 +416,7 @@ func (e *Exporter) scrape(ch chan<- prometheus.Metric) (up float64) {
 	e.totalScrapes.Inc()
 
 	if e.fetchInfo != nil {
-		infoReader, err := e.fetchInfo(-1)
+		infoReader, err := e.fetchInfo()
 		if err != nil {
 			level.Error(e.logger).Log("msg", "Can't scrape HAProxy", "err", err)
 			return 0
@@ -429,7 +435,7 @@ func (e *Exporter) scrape(ch chan<- prometheus.Metric) (up float64) {
 	}
 
 	if e.fetchProc != nil {
-		procReader, err := e.fetchProc(-1)
+		procReader, err := e.fetchProc()
 		if err != nil {
 			level.Error(e.logger).Log("msg", "Can't scrape HAProxy", "err", err)
 			return 0

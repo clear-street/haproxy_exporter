@@ -80,10 +80,10 @@ endif
 
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
-DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
+DOCKER_IMAGE_TAG        ?= v1.0.0
 DOCKERFILE_PATH         ?= ./Dockerfile
 DOCKERBUILD_CONTEXT     ?= ./
-DOCKER_REPO             ?= prom
+DOCKER_REPO             ?= docker.co.clearstreet.io/haproxy_exporter
 
 DOCKER_ARCHS            ?= amd64
 
