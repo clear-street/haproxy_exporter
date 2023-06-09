@@ -3,11 +3,30 @@
 This is a simple server that scrapes HAProxy stats and exports them via HTTP for
 Prometheus consumption.
 
-## This exporter is retired
+## Clear Street Modifications
 
-In all supported versions of HAProxy, the official source includes a Prometheus exporter module that can be built into your binary with a single flag during build time and offers a native Prometheus endpoint. For more information see [down below](#official-prometheus-exporter).
+Although the base project has been marked as archived and point us to the native
+Prometheus endpoint we found that there is an issue when haproxy does a live reload
+metrics for connections persisting on old workers will not be picked up. This is
+due to the Prometheus endpoint only being served from the current process which
+does not include metrics from old processes.
 
-Please transition to using the built-in support as soon as possible.
+To get around this we leverage admin stats socket which also serves metrics and
+the minor modifications on code in the haproxy exporter to first list all processes
+using the master CLI and export metrics from all processes. This only works on
+the Unix socket option.
+
+### How to build a new version
+
+To build a new image update the version [here](https://github.com/clear-street/haproxy_exporter/blob/main/Makefile.common#L83)
+and run the following:
+
+```
+make docker-amd64
+
+docker push docker.co.clearstreet.io/haproxy_exporter/haproxy-exporter-linux-amd64:<version tag>
+```
+
 
 ## Getting Started
 
